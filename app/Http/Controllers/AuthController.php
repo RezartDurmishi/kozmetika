@@ -12,51 +12,31 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * Create a new AuthController instance.
-     *
-     * @return JsonResponse
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
-    }
-
-    /**
      * Get a JWT token via given credentials.
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
      */
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
 
-//        dump($request);
-
-        if ($token = $this->guard()->attempt($credentials)) {
+        $token = $this->guard()->attempt($credentials);
+        if ($token != null) {
             return $this->respondWithToken($token);
         }
-
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Bad credentials.'], 401);
     }
 
     /**
      * Get the authenticated User
-     *
-     * @return JsonResponse
      */
-    public function me()
+    public function getLoggedUser(): JsonResponse
     {
         return response()->json($this->guard()->user());
     }
 
     /**
      * Log the user out (Invalidate the token)
-     *
-     * @return JsonResponse
      */
-    public function logout()
+    public function logout(): JsonResponse
     {
         $this->guard()->logout();
 
@@ -65,22 +45,16 @@ class AuthController extends Controller
 
     /**
      * Refresh a token.
-     *
-     * @return JsonResponse
      */
-    public function refresh()
+    public function refresh(): JsonResponse
     {
         return $this->respondWithToken($this->guard()->refresh());
     }
 
     /**
      * Get the token array structure.
-     *
-     * @param string $token
-     *
-     * @return JsonResponse
      */
-    protected function respondWithToken($token)
+    protected function respondWithToken(string $token): JsonResponse
     {
         return response()->json([
             'access_token' => $token,
@@ -91,22 +65,43 @@ class AuthController extends Controller
 
     /**
      * Get the guard to be used during authentication.
-     *
-     * @return Guard
      */
-    public function guard()
+    public function guard(): Guard
     {
         return Auth::guard();
     }
 
+    /**
+     * Register a new user
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function register(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'surname' => 'required',
+            'email' => 'required|regex:/(.+)@(.+)\.(.+)/i',
+            'password' => 'required|min:8',
+        ]);
+
         $name = $request->name;
+        $surname = $request->surname;
         $password = Hash::make($request->password);
         $email = $request->email;
+        $role = "user";
 
-        return User::create(compact('name', 'email', 'password'));
+        //checks if there are existing users using the same email
+        $user = User::where('email', '=', $request->email)->first();
+
+        if ($user === null) {
+            $response = User::create(compact('name', 'surname', 'email', 'password', 'role'));
+            return response()->json(['data' => $response], 201);
+        } else {
+            return response()->json(['error' => 'That email is taken. Try another'], 409);
+        }
     }
 
-
+    //reset password
 }
