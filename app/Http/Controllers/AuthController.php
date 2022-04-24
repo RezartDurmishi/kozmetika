@@ -12,14 +12,6 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * Create a new AuthController instance.
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
-    }
-
-    /**
      * Get a JWT token via given credentials.
      */
     public function login(Request $request): JsonResponse
@@ -87,13 +79,29 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'surname' => 'required',
+            'email' => 'required|regex:/(.+)@(.+)\.(.+)/i',
+            'password' => 'required|min:8',
+        ]);
+
         $name = $request->name;
         $surname = $request->surname;
         $password = Hash::make($request->password);
         $email = $request->email;
+        $role = "user";
 
-        return User::create(compact('name', 'surname', 'email', 'password'));
+        //checks if there are existing users using the same email
+        $user = User::where('email', '=', $request->email)->first();
+
+        if ($user === null) {
+            $response = User::create(compact('name', 'surname', 'email', 'password', 'role'));
+            return response()->json(['data' => $response], 201);
+        } else {
+            return response()->json(['error' => 'That email is taken. Try another'], 409);
+        }
     }
 
-
+    //reset password
 }

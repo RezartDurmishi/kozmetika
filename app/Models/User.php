@@ -23,13 +23,14 @@ class User extends Authenticatable implements JWTSubject
         'surname',
         'email',
         'password',
+        'role',
     ];
 
     /**
      * Auto-generated attributes
      */
     protected $guarded = [
-        'id'
+        'id',
     ];
 
     /**
@@ -39,6 +40,11 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    //default value for 'role' field
+//    protected $attributes = [
+//        'role' => 'user',
+//    ];
 
     /**
      * The attributes that should be cast.

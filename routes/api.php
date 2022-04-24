@@ -20,27 +20,36 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group([
+//Public
 
-    'middleware' => 'api',
-    'namespace' => 'App\Http\Controllers'],
+//Auth
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
-    function ($router) {
-        //Auth
-        Route::post('/login', [AuthController::class, 'login']);
-        Route::post('/register', [AuthController::class, 'register']);
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/refresh-token', [AuthController::class, 'refresh']);
-        Route::post('/get-logged-user', [AuthController::class, 'getLoggedUser']);
-
-        //User
-        Route::get('/user/list', [UserController::class, 'listUsers']);
-        Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
-        Route::delete('/user/delete/{id}', [UserController::class, 'deleteUserById']);
-
-    });
 
 Route::get('/greeting', function () {
     return 'Hello World';
 });
+
+//Authenticated User
+Route::group([
+    'middleware' => 'api',
+    'namespace' => 'App\Http\Controllers'],
+    function ($router) {
+        //Auth
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/refresh-token', [AuthController::class, 'refresh']);
+        Route::post('/get-logged-user', [AuthController::class, 'getLoggedUser']);
+    });
+
+//Authenticated Admin
+Route::group([
+    'middleware' => ['api', 'admin'],
+    'namespace' => 'App\Http\Controllers'],
+    function ($router) {
+        //User
+        Route::get('/user/list', [UserController::class, 'listUsers']);
+        Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
+        Route::delete('/user/delete/{id}', [UserController::class, 'deleteUserById']);
+    });
 
