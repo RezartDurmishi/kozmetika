@@ -29,8 +29,6 @@ Route::get('/homepage', function () {
     return 'HOMEPAGE';
 })->name('homepage'); //todo: create a better homepage
 
-
-
 Route::get('/admin-permission-needed', function () {
     return response()->json(['error' => 'Only admin can access this resource.'], 401);
 });
