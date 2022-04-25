@@ -23,7 +23,6 @@ class IsAdmin
             return $next($request);
         }
 
-        return redirect('/');
-//        return redirect('/api/greeting');
+        return redirect('/api/admin-permission-needed');
     }
 }

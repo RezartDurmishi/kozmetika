@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,14 +22,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 //Public
-
-//Auth
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/homepage', function () {
+    return 'HOMEPAGE';
+})->name('homepage'); //todo: create a better homepage
 
-Route::get('/greeting', function () {
-    return 'Hello World';
+
+
+Route::get('/admin-permission-needed', function () {
+    return response()->json(['error' => 'Only admin can access this resource.'], 401);
 });
 
 //Authenticated User
@@ -40,6 +44,9 @@ Route::group([
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/refresh-token', [AuthController::class, 'refresh']);
         Route::post('/get-logged-user', [AuthController::class, 'getLoggedUser']);
+
+        //Product
+        Route::post('/product/create', [ProductController::class, 'create']);
     });
 
 //Authenticated Admin

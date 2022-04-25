@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
+     * Create a new AuthController instance.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login']]);
+    }
+
+    /**
      * Get a JWT token via given credentials.
      */
     public function login(Request $request): JsonResponse
@@ -103,5 +111,6 @@ class AuthController extends Controller
         }
     }
 
-    //reset password
+    //todo: reset password
+    //todo: add all validations
 }
