@@ -111,7 +111,4 @@ class AuthController extends Controller
             return response()->json(['error' => 'That email is taken. Try another'], 409);
         }
     }
-
-    //todo: reset password
-    //todo: add all validations
 }

@@ -27,7 +27,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/homepage', function () {
     return 'HOMEPAGE';
-})->name('homepage'); //todo: create a better homepage
+})->name('homepage');
 
 Route::get('/admin-permission-needed', function () {
     return response()->json(['error' => 'Only admin can access this resource.'], 401);

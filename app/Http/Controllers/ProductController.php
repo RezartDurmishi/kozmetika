@@ -32,7 +32,7 @@ class ProductController extends Controller
         $expirationDate = $request->expirationDate;
         $categoryId = $request->categoryId;
 
-        //$image = $request->image; //todo: add image feature
+        //$image = $request->image;
 
         $product = Product::create(compact('name', 'brand', 'price', 'description', 'expirationDate', 'categoryId'));
 
