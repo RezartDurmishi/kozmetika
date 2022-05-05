@@ -28,11 +28,10 @@ class AuthController extends Controller
 
         $token = $this->guard()->attempt($credentials);
         if ($token != null) {
-             $response = [
-                'token' => $this->respondWithToken($token)->getData(),
-                'loggedUser' => $this->getLoggedUser()->getData()
-            ];
-            return $response;
+            return [
+               'token' => $this->respondWithToken($token)->getData(),
+               'loggedUser' => $this->getLoggedUser()->getData()
+           ];
         }
 
         return response()->json(['error' => 'Bad credentials.'], 401);
