@@ -84,9 +84,11 @@ class AuthController extends Controller
      * Register a new user
      *
      * @param Request $request
-     * @return mixed
+
+
+     * @return JsonResponse
      */
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
         $request->validate([
             'name' => 'required',

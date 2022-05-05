@@ -43,6 +43,10 @@ Route::group([
         Route::post('/refresh-token', [AuthController::class, 'refresh']);
         Route::post('/get-logged-user', [AuthController::class, 'getLoggedUser']);
 
+        //User
+        Route::put('/user/reset-password/{id}', [UserController::class, 'resetPassword']);
+        Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
+
         //Product
         Route::post('/product/create', [ProductController::class, 'create']);
     });
@@ -54,7 +58,6 @@ Route::group([
     function ($router) {
         //User
         Route::get('/user/list', [UserController::class, 'listUsers']);
-        Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
         Route::delete('/user/delete/{id}', [UserController::class, 'deleteUserById']);
     });
 
