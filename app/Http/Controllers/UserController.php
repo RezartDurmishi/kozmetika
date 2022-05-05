@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,11 +16,17 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     /**
-     * Create a new UserController instance.
+     * @var AuthController
      */
-    public function __construct()
+    private $authController;
+
+    /**
+     * constructor
+     */
+    public function __construct(AuthController $authController)
     {
         $this->middleware('auth:api');
+        $this->authController = $authController;
     }
 
     /**
@@ -35,10 +42,15 @@ class UserController extends Controller
      */
     public function getUserById($id)
     {
+        $loggedUser = json_decode($this->authController->getLoggedUser()->content());
+        if ($id != $loggedUser ->id && $loggedUser ->role == 'user'){
+            return response()->json(['error' => 'Only admin can access /users/{id}.'], 401);
+        }
+
         $user = DB::table('users')->find($id);
 
         if ($user == null) {
-            return "User with id " . $id . " is not found.";
+            return response()->json(['error' => "User with id " . $id . " is not found."], 404);
         }
 
         return $user;
@@ -47,12 +59,12 @@ class UserController extends Controller
     /**
      * delete by id
      */
-    public function deleteUserById($id): string
+    public function deleteUserById($id)
     {
         $user = DB::table('users')->find($id);
 
         if ($user == null) {
-            return "User with id " . $id . " does not exist.";
+            return response()->json(['error' => "User with id " . $id . " is not found."], 404);
         }
 
         DB::table('users')->delete($id);
@@ -65,10 +77,15 @@ class UserController extends Controller
      *
      * @param Request $request
      * @param $id
-     * @return JsonResponse|void
+     * @return JsonResponse
      */
-    public function resetPassword(Request $request, $id)
+    public function resetPassword(Request $request, $id): JsonResponse
     {
+        $loggedUser = json_decode($this->authController->getLoggedUser()->content());
+        if ($id != $loggedUser ->id){
+            return response()->json(['error' => 'The given id is incorrect.'], 401);
+        }
+
         $request->validate([
             'name' => 'required',
             'surname' => 'required',
@@ -77,9 +94,9 @@ class UserController extends Controller
             'newPassword' => 'required|min:8',
             'confirmNewPass' => 'required|min:8',
         ],
-        [
-            'newPassword.min' => 'This field must be at least 8 characters.'
-        ]);
+            [
+                'newPassword.min' => 'This field must be at least 8 characters.'
+            ]);
 
         $name = $request->name;
         $surname = $request->surname;
@@ -88,8 +105,7 @@ class UserController extends Controller
         $newPassword = $request->newPassword;
         $confirmNewPass = $request->confirmNewPass;
 
-        $user = $this->getUserById($id);  //todo: this is only for admin.
-        $role = $user->role;
+        $user = $this->getUserById($id);
 
         if (Hash::check($oldPassword, $user->password) == false) {
             return response()->json(['error' => 'Old password is not correct.'], 400);
@@ -104,17 +120,17 @@ class UserController extends Controller
         }
 
         $existingUser = User::where('email', '=', $request->email)->first();
-        if ($existingUser != null) {
+
+        if ($existingUser != null && $existingUser->id != $id) {
             return response()->json(['error' => 'That email is taken. Try another'], 409);
         }
 
         $password = Hash::make($newPassword);
+        $updatedUser = ['name' => $name, 'surname' => $surname, 'email' => $email, 'password' => $password];
+        DB::table('users')->where('id', $id)->update($updatedUser);
 
-        User::update(compact('name', 'surname', 'email', 'password', 'role'));
-//        User::where('id', $id)->update(array('password' => $password));
+        Auth::logout();
 
-//        AuthController->logout();
-
-        return response()->json(['data' => 'Updated successfully'], 204);
+        return response()->json(['message' => 'Updated successfully.']);
     }
 }

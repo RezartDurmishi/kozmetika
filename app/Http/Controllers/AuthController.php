@@ -12,12 +12,11 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * Create a new AuthController instance.
+     * constructor
      */
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
-//        $this->middleware(['auth:api', 'admin'], ['except' => ['login', 'register']]);
     }
 
     /**
@@ -108,7 +107,7 @@ class AuthController extends Controller
 
         if ($user === null) {
             $response = User::create(compact('name', 'surname', 'email', 'password', 'role'));
-            return response()->json(['data' => $response], 201);
+            return $response;
         } else {
             return response()->json(['error' => 'That email is taken. Try another'], 409);
         }
