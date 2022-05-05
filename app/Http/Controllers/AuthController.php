@@ -22,14 +22,19 @@ class AuthController extends Controller
     /**
      * Get a JWT token via given credentials.
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         $token = $this->guard()->attempt($credentials);
         if ($token != null) {
-            return $this->respondWithToken($token);
+             $response = [
+                'token' => $this->respondWithToken($token)->getData(),
+                'loggedUser' => $this->getLoggedUser()->getData()
+            ];
+            return $response;
         }
+
         return response()->json(['error' => 'Bad credentials.'], 401);
     }
 
