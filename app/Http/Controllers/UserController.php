@@ -90,9 +90,9 @@ class UserController extends Controller
             'name' => 'required',
             'surname' => 'required',
             'email' => 'required|regex:/(.+)@(.+)\.(.+)/i',
-            'oldPassword' => 'min:8',
-            'newPassword' => 'min:8',
-            'confirmNewPass' => 'min:8',
+            'oldPassword' => 'required|min:8',
+            'newPassword' => 'required|min:8',
+            'confirmNewPass' => 'required|min:8',
         ],
             [
                 'newPassword.min' => 'This field must be at least 8 characters.'
@@ -129,9 +129,9 @@ class UserController extends Controller
         $updatedUser = ['name' => $name, 'surname' => $surname, 'email' => $email, 'password' => $password];
         DB::table('users')->where('id', $id)->update($updatedUser);
 
-        if ($password != null){
+//        if ($password != null){
             Auth::logout();
-        }
+//        }
 
         return response()->json(['message' => 'Updated successfully.']);
     }
