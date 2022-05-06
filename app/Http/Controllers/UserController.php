@@ -129,7 +129,9 @@ class UserController extends Controller
         $updatedUser = ['name' => $name, 'surname' => $surname, 'email' => $email, 'password' => $password];
         DB::table('users')->where('id', $id)->update($updatedUser);
 
-        Auth::logout();
+        if ($password != null){
+            Auth::logout();
+        }
 
         return response()->json(['message' => 'Updated successfully.']);
     }
