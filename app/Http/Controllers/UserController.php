@@ -90,9 +90,9 @@ class UserController extends Controller
             'name' => 'required',
             'surname' => 'required',
             'email' => 'required|regex:/(.+)@(.+)\.(.+)/i',
-            'oldPassword' => 'required|min:8',
-            'newPassword' => 'required|min:8',
-            'confirmNewPass' => 'required|min:8',
+            'oldPassword' => 'min:8',
+            'newPassword' => 'min:8',
+            'confirmNewPass' => 'min:8',
         ],
             [
                 'newPassword.min' => 'This field must be at least 8 characters.'
