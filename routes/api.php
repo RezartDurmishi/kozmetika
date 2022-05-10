@@ -51,8 +51,10 @@ Route::group([
         Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
 
         //Product
-        Route::post('/product/create', [ProductController::class, 'create']);
+        Route::get('/product/get/{id}', [ProductController::class, 'getProductById']);
         Route::get('/product/list', [ProductController::class, 'list']);
+
+        //Image
         Route::post('/product/create-image', [ProductController::class, 'addImage']);
     });
 
@@ -64,5 +66,10 @@ Route::group([
         //User
         Route::get('/user/list', [UserController::class, 'listUsers']);
         Route::delete('/user/delete/{id}', [UserController::class, 'deleteUserById']);
+
+        //Product
+        Route::post('/product/create', [ProductController::class, 'create']);
+        Route::delete('/product/delete/{id}', [ProductController::class, 'deleteById']);
+        Route::put('/product/update/{id}', [ProductController::class, 'updateById']);
     });
 

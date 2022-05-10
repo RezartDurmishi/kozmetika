@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -59,11 +60,62 @@ class ProductController extends Controller
      * get by id
      *
      * @param $id
-     * @return void
+     * @return Builder|JsonResponse|mixed
      */
-    public function getById($id){
+    public function getProductById($id)
+    {
         $product = DB::table('products')->find($id);
+
+        if ($product == null) {
+            return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
+        }
+
         return $product;
+    }
+
+    /**
+     * delete by id
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function deleteById($id)
+    {
+        $product = DB::table('products')->find($id);
+
+        if ($product == null) {
+            return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
+        }
+
+        DB::table('products')->delete($id);
+        return response()->json(['error' => "Product with id " . $id . " deleted successfully."]);
+    }
+
+    public function updateById(Request $request, $id)
+    {
+        $currentProduct = $this->getProductById($id);
+
+        if ($currentProduct == null) {
+            return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
+        }
+
+        $name = $request->name;
+        $brand = $request->brand;
+        $price = $request->price;
+        $description = $request->description;
+        $expirationDate = $request->expirationDate;
+        $categoryId = $request->categoryId;
+
+        $image = null;
+        if ($request->image != null) {
+            $image = $this->addImage($request);
+        }
+
+        $updatedProduct = ['name' => $name, 'brand' => $brand, 'price' => $price, 'description' => $description,
+            'expirationDate' => $expirationDate, 'categoryId' => $categoryId, 'image' => $image];
+        DB::table('products')->where('id', $id)->update($updatedProduct);
+
+        return response()->json(['updatedProduct' => $this->getProductById($id)]);
     }
 
     /**

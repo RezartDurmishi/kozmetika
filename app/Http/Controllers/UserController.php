@@ -129,10 +129,9 @@ class UserController extends Controller
         $updatedUser = ['name' => $name, 'surname' => $surname, 'email' => $email, 'password' => $password];
         DB::table('users')->where('id', $id)->update($updatedUser);
 
-//        if ($password != null){
-            Auth::logout();
-//        }
+        $token = $request->bearerToken();
+        Auth::setToken($token)->invalidate();
 
-        return response()->json(['message' => 'Updated successfully.']);
+        return response()->json(['message' => 'User updated successfully.']);
     }
 }
