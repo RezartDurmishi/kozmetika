@@ -33,6 +33,9 @@ Route::get('/admin-permission-needed', function () {
     return response()->json(['error' => 'Only admin can access this resource.'], 401);
 });
 
+Route::get('/product/image/{fileName}', [ProductController::class, 'displayImage']);
+
+
 //Authenticated User
 Route::group([
     'middleware' => 'api',
@@ -49,6 +52,8 @@ Route::group([
 
         //Product
         Route::post('/product/create', [ProductController::class, 'create']);
+        Route::get('/product/list', [ProductController::class, 'list']);
+        Route::post('/product/create-image', [ProductController::class, 'addImage']);
     });
 
 //Authenticated Admin
