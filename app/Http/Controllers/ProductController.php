@@ -122,10 +122,14 @@ class ProductController extends Controller
      * add image
      *
      * @param Request $request
-     * @return string
+     * @return string|null
      */
-    public function addImage(Request $request): string
+    public function addImage(Request $request)
     {
+        if ($request->image == null){
+            return null;
+        }
+
         $base64 = $request->image;
         $base64 = explode(",", $base64)[1];
         $imageName = Str::random(10) . '.png';
