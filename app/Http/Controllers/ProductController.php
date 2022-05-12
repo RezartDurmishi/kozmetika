@@ -20,7 +20,7 @@ class ProductController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => 'displayImage', 'list', 'getById']);
+        $this->middleware('auth:api', ['except' => 'displayImage']);
     }
 
     /**
@@ -85,6 +85,13 @@ class ProductController extends Controller
 
         if ($product == null) {
             return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
+        }
+
+        //delete image before deleting product
+        $image = $product->image;
+        if ($image != null){
+            $imageName = explode("/", $image)[6];
+            Storage::disk('public')->delete($imageName);
         }
 
         DB::table('products')->delete($id);

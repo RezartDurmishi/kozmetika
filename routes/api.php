@@ -53,9 +53,6 @@ Route::group([
         //Product
         Route::get('/product/get/{id}', [ProductController::class, 'getProductById']);
         Route::get('/product/list', [ProductController::class, 'list']);
-
-        //Image
-        Route::post('/product/create-image', [ProductController::class, 'addImage']);
     });
 
 //Authenticated Admin
