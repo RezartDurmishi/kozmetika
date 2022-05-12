@@ -47,7 +47,7 @@ Route::group([
         Route::post('/get-logged-user', [AuthController::class, 'getLoggedUser']);
 
         //User
-        Route::put('/user/reset-password/{id}', [UserController::class, 'resetPassword']);
+        Route::put('/user/update/{id}', [UserController::class, 'update']);
         Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
 
         //Product

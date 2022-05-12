@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -43,8 +42,8 @@ class UserController extends Controller
     public function getUserById($id)
     {
         $loggedUser = json_decode($this->authController->getLoggedUser()->content());
-        if ($id != $loggedUser ->id && $loggedUser ->role == 'user'){
-            return response()->json(['error' => 'Only admin can access /users/{id}.'], 401);
+        if ($id != $loggedUser->id && $loggedUser->role == 'user') {
+            return response()->json(['error' => 'Only admin can access /user/get/{id}.'], 401);
         }
 
         $user = DB::table('users')->find($id);
@@ -68,7 +67,7 @@ class UserController extends Controller
         }
 
         DB::table('users')->delete($id);
-        return "User with id " . $id . " deleted successfully.";
+        return response()->json(['message' => "User with id " . $id . " deleted successfully."]);
     }
 
 
@@ -77,12 +76,11 @@ class UserController extends Controller
      *
      * @param Request $request
      * @param $id
-     * @return JsonResponse
      */
-    public function resetPassword(Request $request, $id): JsonResponse
+    public function update(Request $request, $id)
     {
         $loggedUser = json_decode($this->authController->getLoggedUser()->content());
-        if ($id != $loggedUser ->id){
+        if ($id != $loggedUser->id) {
             return response()->json(['error' => 'The given id is incorrect.'], 401);
         }
 
@@ -90,47 +88,57 @@ class UserController extends Controller
             'name' => 'required',
             'surname' => 'required',
             'email' => 'required|regex:/(.+)@(.+)\.(.+)/i',
-            'oldPassword' => 'required|min:8',
-            'newPassword' => 'required|min:8',
-            'confirmNewPass' => 'required|min:8',
-        ],
-            [
-                'newPassword.min' => 'This field must be at least 8 characters.'
-            ]);
+        ]);
 
         $name = $request->name;
         $surname = $request->surname;
         $email = $request->email;
-        $oldPassword = $request->oldPassword;
-        $newPassword = $request->newPassword;
-        $confirmNewPass = $request->confirmNewPass;
-
-        $user = $this->getUserById($id);
-
-        if (Hash::check($oldPassword, $user->password) == false) {
-            return response()->json(['error' => 'Old password is not correct.'], 400);
-        }
-
-        if ($newPassword != $confirmNewPass) {
-            return response()->json(['error' => 'Passwords does not match.'], 400);
-        }
-
-        if ($oldPassword == $newPassword) {
-            return response()->json(['error' => 'New password cannot be the same as the old password.'], 400);
-        }
 
         $existingUser = User::where('email', '=', $request->email)->first();
-
         if ($existingUser != null && $existingUser->id != $id) {
             return response()->json(['error' => 'That email is taken. Try another'], 409);
         }
 
-        $password = Hash::make($newPassword);
-        $updatedUser = ['name' => $name, 'surname' => $surname, 'email' => $email, 'password' => $password];
+        $user = $this->getUserById($id);
+        $updatedUser = ['name' => $name, 'surname' => $surname, 'email' => $email, 'password' => $user->password];
+
+        //password reset
+        if ($request->oldPassword != null) {
+            $request->validate([
+                'oldPassword' => 'required|min:8',
+                'newPassword' => 'required|min:8',
+                'confirmNewPass' => 'required|min:8',
+            ], [
+                'newPassword.min' => 'This field must be at least 8 characters.'
+            ]);
+
+            $oldPassword = $request->oldPassword;
+            $newPassword = $request->newPassword;
+            $confirmNewPass = $request->confirmNewPass;
+
+            if (Hash::check($oldPassword, $user->password) == false) {
+                return response()->json(['error' => 'Old password is not correct.'], 400);
+            }
+
+            if ($newPassword != $confirmNewPass) {
+                return response()->json(['error' => 'Passwords does not match.'], 400);
+            }
+
+            if ($oldPassword == $newPassword) {
+                return response()->json(['error' => 'New password cannot be the same as the old password.'], 400);
+            }
+
+            $password = Hash::make($newPassword);
+            $updatedUser = ['name' => $name, 'surname' => $surname, 'email' => $email, 'password' => $password];
+        }
+
         DB::table('users')->where('id', $id)->update($updatedUser);
 
-        $token = $request->bearerToken();
-        Auth::setToken($token)->invalidate();
+        //invalidate token ONLY after password reset
+        if ($updatedUser['password'] != $user->password) {
+            $token = $request->bearerToken();
+            Auth::setToken($token)->invalidate();
+        }
 
         return response()->json(['message' => 'User updated successfully.']);
     }

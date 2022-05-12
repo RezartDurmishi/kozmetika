@@ -40,7 +40,7 @@ class AuthController extends Controller
     /**
      * Get the authenticated User
      */
-    public function getLoggedUser(): JsonResponse
+    public function getLoggedUser()
     {
         return response()->json($this->guard()->user());
     }
@@ -48,17 +48,18 @@ class AuthController extends Controller
     /**
      * Log the user out (Invalidate the token)
      */
-    public function logout(): JsonResponse
+    public function logout()
     {
         $this->guard()->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out!']);
     }
 
     /**
      * Refresh a token.
+     * After execution the old token becomes invalid.
      */
-    public function refresh(): JsonResponse
+    public function refresh()
     {
         return $this->respondWithToken($this->guard()->refresh());
     }
@@ -66,7 +67,7 @@ class AuthController extends Controller
     /**
      * Get the token array structure.
      */
-    protected function respondWithToken(string $token): JsonResponse
+    protected function respondWithToken(string $token)
     {
         return response()->json([
             'access_token' => $token,
@@ -87,11 +88,9 @@ class AuthController extends Controller
      * Register a new user
      *
      * @param Request $request
-
-
-     * @return JsonResponse
+     * @return mixed
      */
-    public function register(Request $request): JsonResponse
+    public function register(Request $request)
     {
         $request->validate([
             'name' => 'required',
