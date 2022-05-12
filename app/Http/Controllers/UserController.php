@@ -134,8 +134,8 @@ class UserController extends Controller
 
         DB::table('users')->where('id', $id)->update($updatedUser);
 
-        //invalidate token ONLY after password reset
-        if ($updatedUser['password'] != $user->password) {
+        //invalidate token ONLY after password reset Or email change
+        if ($updatedUser['password'] != $user->password || $updatedUser['email'] != $user->email ) {
             $token = $request->bearerToken();
             Auth::setToken($token)->invalidate();
         }
