@@ -89,7 +89,7 @@ class ProductController extends Controller
 
         //delete image before deleting product
         $image = $product->image;
-        if ($image != null){
+        if ($image != null) {
             $imageName = explode("/", $image)[6];
             Storage::disk('public')->delete($imageName);
         }
@@ -114,8 +114,12 @@ class ProductController extends Controller
         $categoryId = $request->categoryId;
 
         $image = null;
-        if ($request->image != null) {
+        if ($request->image != null && $request->image != 'keep') {
             $image = $this->addImage($request);
+        }
+
+        if ($request->image == 'keep') {
+            $image = $currentProduct->image;
         }
 
         $updatedProduct = ['name' => $name, 'brand' => $brand, 'price' => $price, 'description' => $description,
@@ -133,7 +137,7 @@ class ProductController extends Controller
      */
     public function addImage(Request $request)
     {
-        if ($request->image == null){
+        if ($request->image == null) {
             return null;
         }
 
