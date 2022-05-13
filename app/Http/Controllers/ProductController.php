@@ -95,7 +95,7 @@ class ProductController extends Controller
         }
 
         DB::table('products')->delete($id);
-        return response()->json(['error' => "Product with id " . $id . " deleted successfully."]);
+        return response()->json(['message' => "Product with id " . $id . " deleted successfully."]);
     }
 
     public function updateById(Request $request, $id)
