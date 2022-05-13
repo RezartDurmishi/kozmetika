@@ -41,11 +41,6 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
-    //default value for 'role' field
-//    protected $attributes = [
-//        'role' => 'user',
-//    ];
-
     /**
      * The attributes that should be cast.
      */

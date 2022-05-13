@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,15 +22,19 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 //Public
-
-//Auth
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/homepage', function () {
+    return 'HOMEPAGE';
+})->name('homepage');
 
-Route::get('/greeting', function () {
-    return 'Hello World';
+Route::get('/admin-permission-needed', function () {
+    return response()->json(['error' => 'Only admin can access this resource.'], 401);
 });
+
+Route::get('/product/image/{fileName}', [ProductController::class, 'displayImage']);
+
 
 //Authenticated User
 Route::group([
@@ -40,6 +45,14 @@ Route::group([
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/refresh-token', [AuthController::class, 'refresh']);
         Route::post('/get-logged-user', [AuthController::class, 'getLoggedUser']);
+
+        //User
+        Route::put('/user/update/{id}', [UserController::class, 'update']);
+        Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
+
+        //Product
+        Route::get('/product/get/{id}', [ProductController::class, 'getProductById']);
+        Route::get('/product/list', [ProductController::class, 'list']);
     });
 
 //Authenticated Admin
@@ -49,7 +62,11 @@ Route::group([
     function ($router) {
         //User
         Route::get('/user/list', [UserController::class, 'listUsers']);
-        Route::get('/user/get/{id}', [UserController::class, 'getUserById']);
         Route::delete('/user/delete/{id}', [UserController::class, 'deleteUserById']);
+
+        //Product
+        Route::post('/product/create', [ProductController::class, 'create']);
+        Route::delete('/product/delete/{id}', [ProductController::class, 'deleteById']);
+        Route::put('/product/update/{id}', [ProductController::class, 'updateById']);
     });
 

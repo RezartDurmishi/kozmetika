@@ -12,23 +12,35 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
+     * constructor
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+    }
+
+    /**
      * Get a JWT token via given credentials.
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         $token = $this->guard()->attempt($credentials);
         if ($token != null) {
-            return $this->respondWithToken($token);
+            return [
+               'token' => $this->respondWithToken($token)->getData(),
+               'loggedUser' => $this->getLoggedUser()->getData()
+           ];
         }
+
         return response()->json(['error' => 'Bad credentials.'], 401);
     }
 
     /**
      * Get the authenticated User
      */
-    public function getLoggedUser(): JsonResponse
+    public function getLoggedUser()
     {
         return response()->json($this->guard()->user());
     }
@@ -36,17 +48,18 @@ class AuthController extends Controller
     /**
      * Log the user out (Invalidate the token)
      */
-    public function logout(): JsonResponse
+    public function logout()
     {
         $this->guard()->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out!']);
     }
 
     /**
      * Refresh a token.
+     * After execution the old token becomes invalid.
      */
-    public function refresh(): JsonResponse
+    public function refresh()
     {
         return $this->respondWithToken($this->guard()->refresh());
     }
@@ -54,7 +67,7 @@ class AuthController extends Controller
     /**
      * Get the token array structure.
      */
-    protected function respondWithToken(string $token): JsonResponse
+    protected function respondWithToken(string $token)
     {
         return response()->json([
             'access_token' => $token,
@@ -97,11 +110,9 @@ class AuthController extends Controller
 
         if ($user === null) {
             $response = User::create(compact('name', 'surname', 'email', 'password', 'role'));
-            return response()->json(['data' => $response], 201);
+            return $response;
         } else {
             return response()->json(['error' => 'That email is taken. Try another'], 409);
         }
     }
-
-    //reset password
 }
