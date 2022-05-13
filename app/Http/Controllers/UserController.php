@@ -62,6 +62,8 @@ class UserController extends Controller
     {
         $user = DB::table('users')->find($id);
 
+        //todo?: admin cannot delete his account
+
         if ($user == null) {
             return response()->json(['error' => "User with id " . $id . " is not found."], 404);
         }
