@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -60,6 +61,12 @@ Route::group([
         Route::post('/category/create', [CategoryController::class, 'create']);
         Route::delete('/category/delete/{id}', [CategoryController::class, 'deleteById']);
         Route::put('/category/update/{id}', [CategoryController::class, 'updateById']);
+
+        //Order
+        Route::post('/order/create', [OrderController::class, 'create']);
+        Route::get('/order/list', [OrderController::class, 'list']);
+        Route::get('/order/get/{id}', [OrderController::class, 'getOrderById']);
+        Route::put('/order/cancel/{id}', [OrderController::class, 'cancelOrder']);
     });
 
 //Authenticated Admin
@@ -75,5 +82,8 @@ Route::group([
         Route::post('/product/create', [ProductController::class, 'create']);
         Route::delete('/product/delete/{id}', [ProductController::class, 'deleteById']);
         Route::put('/product/update/{id}', [ProductController::class, 'updateById']);
+
+        //Order
+        Route::put('/order/approve/{id}', [OrderController::class, 'approveOrder']);
     });
 

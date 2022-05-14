@@ -71,7 +71,12 @@ class CategoryController extends Controller
         if ($category == null) {
             return response()->json(['error' => "Category with id " . $id . " is not found."], 404);
         }
+
+        //todo: set categoryId null
+//        $products = Product::where('categoryId', $id)->get();
+
         DB::table('categories')->delete($id);
+
         return response()->json(['message' => "Category with id " . $id . " deleted successfully."]);
     }
 
