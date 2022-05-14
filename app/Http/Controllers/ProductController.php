@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
     /**
-     * Create a new ProductController instance.
+     * constructor
      */
     public function __construct()
     {
@@ -31,16 +31,28 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
-        $name = $request->name;
-        $brand = $request->brand;
-        $price = $request->price;
-        $description = $request->description;
-        $expirationDate = $request->expirationDate;
-        $categoryId = $request->categoryId;
+        $product = new Product();
+        $product->name = $request->name;
+        $product->brand = $request->brand;
+        $product->price = $request->price;
+        $product->description = $request->description;
+        $product->expirationDate = $request->expirationDate;
+        $product->image = $this->addImage($request);
 
-        $image = $this->addImage($request);
+        if ($request->categoryId != null) {
+            $existingCategory = DB::table('categories')->find($request->categoryId);
+            if ($existingCategory != null) {
+                $product->categoryId = $request->categoryId;
+            } else {
+                return response()->json(['error' => "Category with id " . $request->categoryId . " is not found."], 404);
+            }
+        }
+        $product->save();
 
-        $product = Product::create(compact('name', 'brand', 'price', 'description', 'expirationDate', 'categoryId', 'image'));
+        //insert to many-to-many table
+        if ($request->categoryId != null) {
+            $product->categories()->attach($request->categoryId);
+        }
 
         return response()->json(['data' => $product], 201);
     }
@@ -98,20 +110,34 @@ class ProductController extends Controller
         return response()->json(['message' => "Product with id " . $id . " deleted successfully."]);
     }
 
+    /**
+     * update by id
+     *
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
+     */
     public function updateById(Request $request, $id)
     {
-        $currentProduct = $this->getProductById($id);
-
+        $currentProduct = Product::find($id);
         if ($currentProduct == null) {
             return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
         }
 
-        $name = $request->name;
-        $brand = $request->brand;
-        $price = $request->price;
-        $description = $request->description;
-        $expirationDate = $request->expirationDate;
-        $categoryId = $request->categoryId;
+        $currentProduct->name = $request->name;
+        $currentProduct->brand = $request->brand;
+        $currentProduct->price = $request->price;
+        $currentProduct->description = $request->description;
+        $currentProduct->expirationDate = $request->expirationDate;
+
+        if ($request->categoryId != null) {
+            $existingCategory = DB::table('categories')->find($request->categoryId);
+            if ($existingCategory != null) {
+                $currentProduct->categoryId = $request->categoryId;
+            } else {
+                return response()->json(['error' => "Category with id " . $request->categoryId . " is not found."], 404);
+            }
+        }
 
         $image = null;
         if ($request->image != null && $request->image != 'keep') {
@@ -121,10 +147,18 @@ class ProductController extends Controller
         if ($request->image == 'keep') {
             $image = $currentProduct->image;
         }
+        $currentProduct->image = $image;
 
-        $updatedProduct = ['name' => $name, 'brand' => $brand, 'price' => $price, 'description' => $description,
-            'expirationDate' => $expirationDate, 'categoryId' => $categoryId, 'image' => $image];
-        DB::table('products')->where('id', $id)->update($updatedProduct);
+        $currentProduct->save();
+
+        //insert to many-to-many table
+        if ($request->categoryId != null) {
+            $existingCategory = DB::table('categories')->find($request->categoryId);
+            if ($existingCategory != null) {
+                $currentProduct->categories()->attach($request->categoryId);
+            }
+        }
+
 
         return response()->json(['updatedProduct' => $this->getProductById($id)]);
     }

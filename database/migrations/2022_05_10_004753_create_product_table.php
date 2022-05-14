@@ -21,8 +21,8 @@ class CreateProductTable extends Migration
             $table->decimal('price')->nullable(false);
             $table->text('description');
             $table->date('expirationDate')->nullable(true);
-            $table->bigInteger('categoryId');
-            $table->string('image');
+            $table->bigInteger('categoryId')->nullable(true);
+            $table->string('image')->nullable(true);
         });
     }
 

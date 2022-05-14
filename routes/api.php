@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -35,7 +36,6 @@ Route::get('/admin-permission-needed', function () {
 
 Route::get('/product/image/{fileName}', [ProductController::class, 'displayImage']);
 
-
 //Authenticated User
 Route::group([
     'middleware' => 'api',
@@ -53,6 +53,13 @@ Route::group([
         //Product
         Route::get('/product/get/{id}', [ProductController::class, 'getProductById']);
         Route::get('/product/list', [ProductController::class, 'list']);
+
+        //Category
+        Route::get('/category/list', [CategoryController::class, 'list']);
+        Route::get('/category/get/{id}', [CategoryController::class, 'getCategoryById']);
+        Route::post('/category/create', [CategoryController::class, 'create']);
+        Route::delete('/category/delete/{id}', [CategoryController::class, 'deleteById']);
+        Route::put('/category/update/{id}', [CategoryController::class, 'updateById']);
     });
 
 //Authenticated Admin
