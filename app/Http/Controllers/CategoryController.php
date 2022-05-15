@@ -49,10 +49,15 @@ class CategoryController extends Controller
      * Create product
      *
      * @param Request $request
-     * @return JsonResponse
      */
     public function create(Request $request)
     {
+        $request->validate([
+            'name' => 'required|unique:categories|min:1'
+        ], [
+            'name.unique' => 'Category name must be unique.'
+        ]);
+
         $name = $request->name;
         $category = Category::create(compact('name'));
         return response()->json(['data' => $category], 201);
