@@ -135,6 +135,12 @@ class ProductController extends Controller
             'price' => 'required',
         ]);
 
+        if ($request->expirationDate != null) {
+            $request->validate([
+                'expirationDate' => 'date|after:tomorrow',
+            ]);
+        }
+
         $currentProduct = Product::find($id);
         if ($currentProduct == null) {
             return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
