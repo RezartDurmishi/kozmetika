@@ -36,6 +36,12 @@ class ProductController extends Controller
             'price' => 'required',
         ]);
 
+        if ($request->expirationDate != null) {
+            $request->validate([
+                'expirationDate' => 'date|after:tomorrow',
+            ]);
+        }
+
         $product = new Product();
         $product->name = $request->name;
         $product->brand = $request->brand;
