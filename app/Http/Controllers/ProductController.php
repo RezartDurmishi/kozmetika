@@ -31,6 +31,11 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+        ]);
+
         $product = new Product();
         $product->name = $request->name;
         $product->brand = $request->brand;
@@ -119,6 +124,11 @@ class ProductController extends Controller
      */
     public function updateById(Request $request, $id)
     {
+        $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+        ]);
+
         $currentProduct = Product::find($id);
         if ($currentProduct == null) {
             return response()->json(['error' => "Product with id " . $id . " is not found."], 404);

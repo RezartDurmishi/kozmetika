@@ -77,9 +77,6 @@ class CategoryController extends Controller
             return response()->json(['error' => "Category with id " . $id . " is not found."], 404);
         }
 
-        //todo: set categoryId null
-//        $products = Product::where('categoryId', $id)->get();
-
         DB::table('categories')->delete($id);
 
         return response()->json(['message' => "Category with id " . $id . " deleted successfully."]);
@@ -92,6 +89,12 @@ class CategoryController extends Controller
      */
     public function updateById(Request $request, $id)
     {
+        $request->validate([
+            'name' => 'required|unique:categories|min:1'
+        ], [
+            'name.unique' => 'Category name must be unique.'
+        ]);
+
         $currentCategory = Category::find($id);
         if ($currentCategory == null) {
             return response()->json(['error' => "Category with id " . $id . " is not found."], 404);

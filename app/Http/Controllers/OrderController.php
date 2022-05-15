@@ -81,6 +81,13 @@ class OrderController extends Controller
      */
     public function create(Request $request)
     {
+        $request->validate([
+            'orderDate' => 'required|date',
+            'address' => 'required',
+            'total' => 'required',
+            'items' => 'required',
+        ]);
+
         $loggedUser = json_decode($this->authController->getLoggedUser()->content());
         if ($loggedUser->role == 'admin') {
             return response()->json(['error' => 'Register as an user to create orders.'], 401);
