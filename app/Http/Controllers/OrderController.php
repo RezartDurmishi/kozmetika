@@ -67,7 +67,7 @@ class OrderController extends Controller
                 ['id', '=', $id], ['status', '!=', 'CANCELED'])->get();
         }
 
-        if ($order == null || $order->isEmpty() || $order->status == null) {
+        if ($order == null || $order->isEmpty() || $order[0]->status == null) {
             return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
         }
 
