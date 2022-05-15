@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,15 +64,18 @@ class OrderController extends Controller
         }
 
         if ($loggedUser->role == 'admin') {
-            $order = DB::table('orders')->where(
-                ['id', '=', $id], ['status', '!=', 'CANCELED'])->get();
+            $order = DB::table('orders')->where([['id', $id], ['status', '!=', 'CANCELED']])->get();
         }
 
         if ($order == null || $order->isEmpty() || $order[0]->status == null) {
-            return response()->json(['error' => "Product with id " . $id . " is not found."], 404);
+            return response()->json(['error' => "Order with id " . $id . " is not found."], 404);
         }
 
         $suborders = DB::table('orders')->where('parent_id', $order[0]->id)->get();
+        foreach ($suborders as $suborder) {
+            $suborder->productName = Product::find($suborder->product_id)->name;
+        }
+
         return response()->json(["order" => $order, "suborders" => $suborders]);
     }
 
