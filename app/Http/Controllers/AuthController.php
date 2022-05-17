@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -24,14 +23,19 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+        ]);
+
         $credentials = $request->only('email', 'password');
 
         $token = $this->guard()->attempt($credentials);
         if ($token != null) {
             return [
-               'token' => $this->respondWithToken($token)->getData(),
-               'loggedUser' => $this->getLoggedUser()->getData()
-           ];
+                'token' => $this->respondWithToken($token)->getData(),
+                'loggedUser' => $this->getLoggedUser()->getData()
+            ];
         }
 
         return response()->json(['error' => 'Bad credentials.'], 401);
@@ -95,7 +99,7 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required',
             'surname' => 'required',
-            'email' => 'required|regex:/(.+)@(.+)\.(.+)/i',
+            'email' => 'required|email',
             'password' => 'required|min:8',
         ]);
 

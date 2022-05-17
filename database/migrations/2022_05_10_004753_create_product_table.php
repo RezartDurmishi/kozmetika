@@ -17,12 +17,12 @@ class CreateProductTable extends Migration
             $table->id();
             $table->timestamps();
             $table->string('name')->nullable(false);
-            $table->string('brand');
+            $table->string('brand')->nullable(true);
             $table->decimal('price')->nullable(false);
-            $table->text('description');
+            $table->text('description')->nullable(true);
             $table->date('expirationDate')->nullable(true);
-            $table->bigInteger('categoryId');
-            $table->string('image');
+            $table->unsignedBigInteger('categoryId')->nullable(true);
+            $table->string('image')->nullable(true);
         });
     }
 

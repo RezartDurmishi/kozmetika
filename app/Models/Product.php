@@ -29,4 +29,19 @@ class Product extends Model
         'id',
     ];
 
+    /**
+     * The categories that belong to the product.
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    /**
+     * Get the order that owns the product.
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 }
